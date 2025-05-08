@@ -10,6 +10,7 @@ import Session from "@/pages/session";
 import LoginPage from "@/pages/login";
 import StudentDashboard from "@/pages/student-dashboard";
 import ParentDashboard from "@/pages/parent-dashboard";
+import InteractiveTeaching from "@/pages/interactive-teaching";
 
 function Router() {
   return (
@@ -25,6 +26,7 @@ function Router() {
       <Route path="/demo">
         {() => <Session demo={true} />}
       </Route>
+      <Route path="/interactive-teaching" component={InteractiveTeaching} />
       <Route component={NotFound} />
     </Switch>
   );
