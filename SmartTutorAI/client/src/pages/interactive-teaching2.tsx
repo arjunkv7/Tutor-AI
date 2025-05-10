@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import TutorAvatar from "@/components/tutor-avatar";
 import AudioWave from "@/components/audio-wave";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -17,8 +18,7 @@ const hardcodedAIMessages = [
   {
     id: 1,
     role: "assistant",
-    content:
-      "The freezing point depression is a colligative property of solutions. When a solute is added to a pure solvent, the freezing point of the solution becomes lower than that of the pure solvent.",
+    content: "The freezing point depression is a colligative property of solutions. When a solute is added to a pure solvent, the freezing point of the solution becomes lower than that of the pure solvent.",
     timestamp: new Date(),
     audioUrl: null,
   },
@@ -34,8 +34,7 @@ const hardcodedChat = [
   {
     id: 2,
     role: "assistant",
-    content:
-      "Sure! Adding salt to ice to melt snow on roads is a real-life example of freezing point depression.",
+    content: "Sure! Adding salt to ice to melt snow on roads is a real-life example of freezing point depression.",
     timestamp: new Date(),
     audioUrl: null,
   },
@@ -49,6 +48,7 @@ export default function InteractiveTeaching() {
   const [notes, setNotes] = useState("");
   const [sessionTime, setSessionTime] = useState(0);
 
+  // Timer for session time
   useEffect(() => {
     const timer = setInterval(() => setSessionTime((t) => t + 1), 60000);
     return () => clearInterval(timer);
@@ -72,8 +72,7 @@ export default function InteractiveTeaching() {
         {
           id: msgs.length + 2,
           role: "assistant",
-          content:
-            "This is a hardcoded AI response. (Later, this will be replaced with real AI integration.)",
+          content: "This is a hardcoded AI response. (Later, this will be replaced with real AI integration.)",
           timestamp: new Date(),
           audioUrl: null,
         },
@@ -83,9 +82,7 @@ export default function InteractiveTeaching() {
   };
 
   const handleExportChat = () => {
-    const exportText = chatMessages
-      .map((msg) => `${msg.role}: ${msg.content}`)
-      .join("\n");
+    const exportText = chatMessages.map(msg => `${msg.role}: ${msg.content}`).join("\n");
     const blob = new Blob([exportText], { type: "text/plain" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -95,17 +92,14 @@ export default function InteractiveTeaching() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
+      
       {/* Left Sidebar */}
       <div className="w-64 bg-white shadow-lg p-4 flex flex-col">
         <div className="mb-4">
-          <div className="font-semibold text-primary">
-            {hardcodedSession.subject}
-          </div>
+          <div className="font-semibold text-primary">{hardcodedSession.subject}</div>
           <div className="text-lg font-bold">{hardcodedSession.topic}</div>
           <div className="text-gray-500">{hardcodedSession.details}</div>
-          <div className="text-xs text-gray-400 mt-2">
-            Duration: {hardcodedSession.duration}
-          </div>
+          <div className="text-xs text-gray-400 mt-2">Duration: {hardcodedSession.duration}</div>
         </div>
 
         <div className="mb-4">
@@ -115,7 +109,7 @@ export default function InteractiveTeaching() {
 
         <div className="flex-1">
           <div className="text-sm font-medium text-gray-700 mb-2">Notes</div>
-          <textarea
+          <textarea 
             className="w-full bg-gray-100 rounded p-2 h-32 text-sm text-gray-600"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
@@ -126,37 +120,10 @@ export default function InteractiveTeaching() {
 
       {/* Center */}
       <div className="flex-1 flex flex-col items-center justify-between py-8 px-4 relative">
+        
         <div className="flex flex-col items-center w-full">
-          {/* Updated Tutor Avatar with animated breathing border */}
-          <div className="flex flex-col items-center gap-2 mb-4">
-            <div className="relative w-48 h-48">
-              {aiSpeaking && (
-                <div className="absolute inset-0 rounded-full border-4 border-blue-500 animate-breathing-ring z-0" />
-              )}
-              <div className="relative z-10 w-full h-full rounded-full overflow-hidden border-4 border-gray-300 shadow-lg">
-                <img
-                  src="/images/tutor.png"
-                  alt="AI Tutor"
-                  className="object-cover w-full h-full"
-                />
-              </div>
-            </div>
-            {aiSpeaking && (
-              <div className="text-sm text-blue-600 font-medium animate-pulse">
-                Tutor is speaking...
-              </div>
-            )}
-          </div>
+          <TutorAvatar isActive isPlaying={aiSpeaking} isSpeaking={aiSpeaking} size="lg" showWaveform />
 
-          {/* Audio Wave */}
-          <AudioWave
-            isPlaying={aiSpeaking}
-            height={28}
-            barCount={20}
-            className="mx-auto mb-4"
-          />
-
-          {/* AI Message */}
           <div className="mt-4 mb-6 w-full max-w-xl text-center">
             <div className="rounded-lg bg-white shadow p-4 text-lg font-medium text-gray-800 min-h-[60px] flex flex-col items-center justify-center gap-4">
               <p>{hardcodedAIMessages[0].content}</p>
@@ -166,15 +133,12 @@ export default function InteractiveTeaching() {
               </div>
             </div>
           </div>
+
+          <AudioWave isPlaying={aiSpeaking} height={32} barCount={16} className="mx-auto" />
         </div>
 
-        {/* Bottom Buttons */}
         <div className="sticky bottom-0 w-full bg-white shadow-lg p-4 flex justify-center gap-4">
-          <Button
-            variant="default"
-            onClick={() => setIsChatOpen(true)}
-            className="w-full max-w-xs"
-          >
+          <Button variant="default" onClick={() => setIsChatOpen(true)} className="w-full max-w-xs">
             Ask Question
           </Button>
           <Button variant="default" className="w-full max-w-xs">
@@ -183,31 +147,18 @@ export default function InteractiveTeaching() {
           <Button variant="outline" className="w-full max-w-xs">
             Mark Complete
           </Button>
-          <div className="text-xs text-gray-400 flex items-center">
-            Time: {sessionTime} min
-          </div>
+          <div className="text-xs text-gray-400 flex items-center">Time: {sessionTime} min</div>
         </div>
       </div>
 
-      {/* Chat Sheet */}
+      {/* Right Sidebar */}
       <Sheet open={isChatOpen} onOpenChange={setIsChatOpen}>
         <SheetContent side="right" className="w-full sm:max-w-md p-0">
           <div className="h-full flex flex-col">
             <div className="p-4 border-b font-semibold text-lg flex justify-between">
               Ask a Question
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleExportChat}
-              >
-                Export Chat
-              </Button>
+              <Button size="sm" variant="outline" onClick={handleExportChat}>Export Chat</Button>
             </div>
-
-            <div className="px-4 pt-2">
-              <AudioWave isPlaying={aiTyping} height={20} barCount={16} />
-            </div>
-
             <ChatInterface
               messages={chatMessages}
               isLoading={aiTyping}
@@ -216,13 +167,8 @@ export default function InteractiveTeaching() {
               onPauseAudio={() => {}}
               activeAudioId={null}
             />
-
             <div className="p-4 border-t">
-              <Button
-                variant="default"
-                className="w-full"
-                onClick={() => setIsChatOpen(false)}
-              >
+              <Button variant="default" className="w-full" onClick={() => setIsChatOpen(false)}>
                 Continue Session
               </Button>
             </div>
