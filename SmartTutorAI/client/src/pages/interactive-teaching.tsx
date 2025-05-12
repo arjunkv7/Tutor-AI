@@ -42,12 +42,20 @@ const hardcodedChat = [
 ];
 
 export default function InteractiveTeaching() {
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState(hardcodedChat);
   const [aiSpeaking, setAISpeaking] = useState(true);
   const [aiTyping, setAITyping] = useState(false);
   const [notes, setNotes] = useState("");
   const [sessionTime, setSessionTime] = useState(0);
+  const [showVideo, setShowVideo] = useState(false); // Toggle for avatar image/video
+
+  // Hardcoded points (make dynamic later)
+  const topicPoints = [
+    "Definition: Freezing point depression is a colligative property.",
+    "Occurs when a solute is added to a solvent.",
+    "Lowers the freezing point of the solution.",
+    "Example: Salt on icy roads.",
+  ];
 
   useEffect(() => {
     const timer = setInterval(() => setSessionTime((t) => t + 1), 60000);
@@ -94,71 +102,58 @@ export default function InteractiveTeaching() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Left Sidebar */}
-      <div className="w-64 bg-white shadow-lg p-4 flex flex-col">
-        <div className="mb-4">
-          <div className="font-semibold text-primary">
-            {hardcodedSession.subject}
-          </div>
-          <div className="text-lg font-bold">{hardcodedSession.topic}</div>
-          <div className="text-gray-500">{hardcodedSession.details}</div>
-          <div className="text-xs text-gray-400 mt-2">
-            Duration: {hardcodedSession.duration}
+    <div className="flex h-screen bg-gray-50 min-h-0">
+      {/* Left Column: Avatar and Chat */}
+      <div className="w-96 bg-white shadow-lg p-6 flex flex-col items-center border-r">
+        {/* Large Avatar (fixed, not scrollable) */}
+        <div className="mb-6 w-full flex flex-col items-center flex-shrink-0">
+          <div className="relative w-64 h-64 mb-4">
+            {showVideo ? (
+              <video
+               
+                src="/videos/tutor.mp4"
+                controls
+                autoPlay
+                loop
+                className="w-full h-full rounded-full object-cover border-4 border-gray-300 shadow-lg"
+              />
+            ) : (
+              <img
+                src="/images/tutor.png"
+                alt="AI Tutor"
+                className="w-full h-full rounded-full object-cover border-4 border-gray-300 shadow-lg"
+              />
+            )}
+            <button
+              className="absolute bottom-2 right-2 bg-white rounded-full shadow px-2 py-1 text-xs border hover:bg-gray-100"
+              onClick={() => setShowVideo((v) => !v)}
+            >
+              {showVideo ? "Show Image" : "Show Video"}
+            </button>
           </div>
         </div>
-
-        <div className="mb-4">
-          <div className="text-sm font-medium text-gray-700">Progress</div>
-          <Progress value={hardcodedSession.progress} className="h-2 mt-1" />
-        </div>
-
-        <div className="flex-1">
-          <div className="text-sm font-medium text-gray-700 mb-2">Notes</div>
-          <textarea
-            className="w-full bg-gray-100 rounded p-2 h-32 text-sm text-gray-600"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Add your notes here..."
-          />
+        {/* Chat Section (scrollable) */}
+        <div className="w-full flex-1 flex flex-col min-h-0 overflow-hidden">
+          <div className="p-2 border-b font-semibold text-lg text-center flex-shrink-0">Chat</div>
+          <div className="flex-1 overflow-y-auto min-h-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100" style={{ scrollbarWidth: 'thin' }}>
+            <ChatInterface
+              messages={chatMessages}
+              isLoading={aiTyping}
+              onSendMessage={handleSendMessage}
+              onPlayAudio={() => {}}
+              onPauseAudio={() => {}}
+              activeAudioId={null}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Center */}
-      <div className="flex-1 flex flex-col items-center justify-between py-8 px-4 relative">
-        <div className="flex flex-col items-center w-full">
-          {/* Updated Tutor Avatar with animated breathing border */}
-          <div className="flex flex-col items-center gap-2 mb-4">
-            <div className="relative w-48 h-48">
-              {aiSpeaking && (
-                <div className="absolute inset-0 rounded-full border-4 border-blue-500 animate-breathing-ring z-0" />
-              )}
-              <div className="relative z-10 w-full h-full rounded-full overflow-hidden border-4 border-gray-300 shadow-lg">
-                <img
-                  src="/images/tutor.png"
-                  alt="AI Tutor"
-                  className="object-cover w-full h-full"
-                />
-              </div>
-            </div>
-            {aiSpeaking && (
-              <div className="text-sm text-blue-600 font-medium animate-pulse">
-                Tutor is speaking...
-              </div>
-            )}
-          </div>
-
-          {/* Audio Wave */}
-          <AudioWave
-            isPlaying={aiSpeaking}
-            height={28}
-            barCount={20}
-            className="mx-auto mb-4"
-          />
-
-          {/* AI Message */}
-          <div className="mt-4 mb-6 w-full max-w-xl text-center">
-            <div className="rounded-lg bg-white shadow p-4 text-lg font-medium text-gray-800 min-h-[60px] flex flex-col items-center justify-center gap-4">
+      {/* Middle Column: AI Speaking Text (scrollable) */}
+      <div className="flex-1 flex flex-col items-center py-8 px-8 min-h-0">
+        <div className="flex-1 flex flex-col items-center w-full overflow-y-auto min-h-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100" style={{ scrollbarWidth: 'thin' }}>
+          {/* AI Speaking Message */}
+          <div className="mt-4 mb-6 w-full max-w-2xl text-center">
+            <div className="rounded-lg bg-white shadow p-6 text-lg font-medium text-gray-800 min-h-[60px] flex flex-col items-center justify-center gap-4">
               <p>{hardcodedAIMessages[0].content}</p>
               <div className="flex gap-2 mt-2">
                 <Button size="sm">Explain Again</Button>
@@ -167,16 +162,8 @@ export default function InteractiveTeaching() {
             </div>
           </div>
         </div>
-
-        {/* Bottom Buttons */}
-        <div className="sticky bottom-0 w-full bg-white shadow-lg p-4 flex justify-center gap-4">
-          <Button
-            variant="default"
-            onClick={() => setIsChatOpen(true)}
-            className="w-full max-w-xs"
-          >
-            Ask Question
-          </Button>
+        {/* Bottom Buttons (sticky at bottom) */}
+        <div className="w-full bg-white shadow-lg p-4 flex justify-center gap-4 mt-8 flex-shrink-0 sticky bottom-0 z-10">
           <Button variant="default" className="w-full max-w-xs">
             Take Quiz
           </Button>
@@ -189,46 +176,38 @@ export default function InteractiveTeaching() {
         </div>
       </div>
 
-      {/* Chat Sheet */}
-      <Sheet open={isChatOpen} onOpenChange={setIsChatOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-md p-0">
-          <div className="h-full flex flex-col">
-            <div className="p-4 border-b font-semibold text-lg flex justify-between">
-              Ask a Question
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleExportChat}
-              >
-                Export Chat
-              </Button>
+      {/* Right Column: Key Points, Details, Notes (scrollable) */}
+      <div className="w-[420px] max-w-full bg-white border-l shadow-lg flex flex-col p-6 min-h-0">
+        <div className="flex-1 flex flex-col overflow-y-auto min-h-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100" style={{ scrollbarWidth: 'thin' }}>
+          <div className="mb-4">
+            <div className="font-semibold text-primary text-center">
+              {hardcodedSession.subject}
             </div>
-
-            <div className="px-4 pt-2">
-              <AudioWave isPlaying={aiTyping} height={20} barCount={16} />
-            </div>
-
-            <ChatInterface
-              messages={chatMessages}
-              isLoading={aiTyping}
-              onSendMessage={handleSendMessage}
-              onPlayAudio={() => {}}
-              onPauseAudio={() => {}}
-              activeAudioId={null}
-            />
-
-            <div className="p-4 border-t">
-              <Button
-                variant="default"
-                className="w-full"
-                onClick={() => setIsChatOpen(false)}
-              >
-                Continue Session
-              </Button>
+            <div className="text-lg font-bold text-center">{hardcodedSession.topic}</div>
+            <div className="text-gray-500 text-center">{hardcodedSession.details}</div>
+            <div className="text-xs text-gray-400 mt-2 text-center">
+              Duration: {hardcodedSession.duration}
             </div>
           </div>
-        </SheetContent>
-      </Sheet>
+          <div className="mb-6 w-full">
+            <div className="text-sm font-medium text-gray-700 mb-2">Key Points</div>
+            <ul className="list-disc pl-5 text-gray-700 text-sm space-y-1">
+              {topicPoints.map((point, idx) => (
+                <li key={idx}>{point}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="w-full mt-auto">
+            <div className="text-sm font-medium text-gray-700 mb-2">Notes</div>
+            <textarea
+              className="w-full bg-gray-100 rounded p-2 h-24 text-sm text-gray-600"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Add your notes here..."
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -194,7 +194,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       </div>
       
       {/* Input Area */}
-      <div className="border-t border-gray-200 bg-white p-4">
+      <div className="border-t border-gray-200 bg-white p-4 sticky bottom-0 z-20">
         <div className="flex items-center">
           <Button variant="ghost" size="icon" className="w-10 h-10 rounded-full mr-3">
             <Paperclip className="h-5 w-5 text-gray-500" />
